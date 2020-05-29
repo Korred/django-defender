@@ -10,7 +10,12 @@ from django.utils.module_loading import import_string
 from .connection import get_redis_connection
 from . import config
 from .data import store_login_attempt
-from .signals import send_username_block_signal, send_ip_block_signal, send_username_unblock_signal, send_ip_unblock_signal
+from .signals import (
+    send_username_block_signal,
+    send_ip_block_signal,
+    send_username_unblock_signal,
+    send_ip_unblock_signal,
+)
 
 REDIS_SERVER = get_redis_connection()
 
@@ -40,11 +45,7 @@ def get_ip_address_from_request(request):
 
 def get_ip(request):
     """ get the ip address from the request """
-    print("get_ip")
-    print(request.META.get(config.REVERSE_PROXY_HEADER, ""))
-    print(request.META)
     if config.BEHIND_REVERSE_PROXY:
-        print("BEHIND REVERSE PROXY")
         ip_address = request.META.get(config.REVERSE_PROXY_HEADER, "")
         ip_address = ip_address.split(",", 1)[0].strip()
         if ip_address == "":
@@ -71,7 +72,9 @@ def get_ip_attempt_cache_key(ip_address):
 
 def get_username_attempt_cache_key(username):
     """ get the cache key by username """
-    return "{0}:failed:username:{1}".format(config.CACHE_PREFIX, lower_username(username))
+    return "{0}:failed:username:{1}".format(
+        config.CACHE_PREFIX, lower_username(username)
+    )
 
 
 def get_ip_blocked_cache_key(ip_address):
@@ -81,7 +84,9 @@ def get_ip_blocked_cache_key(ip_address):
 
 def get_username_blocked_cache_key(username):
     """ get the cache key by username """
-    return "{0}:blocked:username:{1}".format(config.CACHE_PREFIX, lower_username(username))
+    return "{0}:blocked:username:{1}".format(
+        config.CACHE_PREFIX, lower_username(username)
+    )
 
 
 def strip_keys(key_list):
@@ -298,9 +303,14 @@ def lockout_response(request):
         return HttpResponseRedirect(config.LOCKOUT_URL)
 
     if config.COOLOFF_TIME:
-        return HttpResponse("Account locked: too many login attempts.  " "Please try again later.")
+        return HttpResponse(
+            "Account locked: too many login attempts.  " "Please try again later."
+        )
     else:
-        return HttpResponse("Account locked: too many login attempts.  " "Contact an admin to unlock your account.")
+        return HttpResponse(
+            "Account locked: too many login attempts.  "
+            "Contact an admin to unlock your account."
+        )
 
 
 def is_user_already_locked(username):
@@ -334,7 +344,9 @@ def is_already_locked(request, get_username=get_username_from_request, username=
     return ip_blocked or user_blocked
 
 
-def check_request(request, login_unsuccessful, get_username=get_username_from_request, username=None):
+def check_request(
+    request, login_unsuccessful, get_username=get_username_from_request, username=None
+):
     """ check the request, and process results"""
     ip_address = get_ip(request)
     username = username or get_username(request)
@@ -348,7 +360,9 @@ def check_request(request, login_unsuccessful, get_username=get_username_from_re
         return record_failed_attempt(ip_address, username)
 
 
-def add_login_attempt_to_db(request, login_valid, get_username=get_username_from_request, username=None):
+def add_login_attempt_to_db(
+    request, login_valid, get_username=get_username_from_request, username=None
+):
     """ Create a record for the login attempt If using celery call celery
     task, if not, call the method normally """
 
@@ -366,6 +380,10 @@ def add_login_attempt_to_db(request, login_valid, get_username=get_username_from
     if config.USE_CELERY:
         from .tasks import add_login_attempt_task
 
-        add_login_attempt_task.delay(user_agent, ip_address, username, http_accept, path_info, login_valid)
+        add_login_attempt_task.delay(
+            user_agent, ip_address, username, http_accept, path_info, login_valid
+        )
     else:
-        store_login_attempt(user_agent, ip_address, username, http_accept, path_info, login_valid)
+        store_login_attempt(
+            user_agent, ip_address, username, http_accept, path_info, login_valid
+        )
