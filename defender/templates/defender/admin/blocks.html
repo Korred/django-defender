@@ -10,7 +10,7 @@
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
-    <a href="{% url "admin:index" %}">Home</a> &rsaquo;
+    <a href="{% url "admin:index" %}">{% trans "Home" %}</a> &rsaquo;
     <a href="{% url "admin:app_list" "defender" %}">Defender</a> &rsaquo;
 </div>
 {% endblock breadcrumbs %}
@@ -18,15 +18,15 @@
 {% block content %}
 <div id="content-main">
 
-<h1>Blocked Logins</h1>
-<p>Here is a list of IP's and usernames that are blocked</p>
+<h1>{% trans "Blocked Attempts" %}</h1>
+<p>{% trans "Here is a list of IP's and usernames that are blocked" %}</p>
 
 <div class="module">
 
 <table>
-    <caption>Blocked IP's</caption>
+    <caption>{% trans "Blocked IP's" %}</caption>
     <thead>
-    <tr><th>IP</th><th>Action</th></tr>
+    <tr><th>IP</th><th>{% trans "Action" %}</th></tr>
     </thead>
     <tbody>
     {% for block in blocked_ip_list %}
@@ -35,12 +35,12 @@
         <td>
             <form method='POST' action="{% url 'defender_unblock_ip_view' block %}">
                 {% csrf_token %}
-                <input type='submit' value='unblock' />
+                <input type='submit' value='{% trans "Unblock" %}' />
             </form>
         </td>
     </tr>
     {% empty %}
-    <tr><td colspan='2'>No IP's</td></tr>
+    <tr><td colspan='2'>{% trans "No IP's" %}</td></tr>
     {% endfor %}
 </tbody>
 </table>
@@ -48,9 +48,9 @@
 
 <div class="module">
 <table>
-    <caption>Blocked Usernames</caption>
+    <caption>{% trans "Blocked Usernames" %}</caption>
     <thead>
-        <tr><th>Usernames</th><th>Action</th></tr>
+        <tr><th>{% trans "Usernames" %}</th><th>{% trans "Action" %}</th></tr>
     </thead>
     <tbody>
     {% for block in blocked_username_list %}
@@ -59,12 +59,12 @@
         <td>
             <form method='POST' action="{% url 'defender_unblock_username_view' block %}">
                 {% csrf_token %}
-                <input type='submit' value='unblock' />
+                <input type='submit' value='{% trans "Unblock" %}' />
             </form>
         </td>
     </tr>
     {% empty %}
-    <tr><td colspan='2'>No Username's</td></tr>
+    <tr><td colspan='2'>{% trans "No Username's" %}</td></tr>
     {% endfor %}
 </tbody>
 </table>
